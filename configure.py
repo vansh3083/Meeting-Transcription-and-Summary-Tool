@@ -1,0 +1,1 @@
+auth_token = "ENTER YOUR API KEY HERE" # Kindly enter your Assembly AI API Key here
