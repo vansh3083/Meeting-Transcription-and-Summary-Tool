@@ -17,6 +17,9 @@ This project is an AI-powered tool designed to automate the process of convertin
 ### `get_results.py`
 - Handles communication with the AssemblyAI API for uploading audio files, processing them for transcription, and retrieving the meeting themes and summaries.
 
+### `configure.py`
+- This file holds your API key for AssemblyAI. Make sure to update the `auth_token` with your own API key.
+
 ## Requirements
 - **Streamlit:** For building the web-based user interface.
 - **AssemblyAI API:** For audio transcription and theme detection.
