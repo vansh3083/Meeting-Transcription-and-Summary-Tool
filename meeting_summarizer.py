@@ -3,8 +3,36 @@ import requests
 import pandas as pd
 from get_results import *
 
+from io import BytesIO
+from pdfdocument.document import PDFDocument
+
 if 'start_point' not in st.session_state:
     st.session_state['start_point'] = 0
+
+def export_pdf(categories, chapters):
+    f = BytesIO()
+    pdf = PDFDocument(f)
+    pdf.init_report()
+
+    pdf.h1('Main themes')
+    pdf.spacer()
+    for cat in categories:
+        pdf.p("* " + cat)
+    
+    pdf.spacer()
+    pdf.h1('Summary Notes of this Meeting:')
+    pdf.spacer()
+    chapters_df = pd.DataFrame(chapters)
+    for index, row in chapters_df.iterrows():
+        pdf.h3(row['gist'])
+        pdf.p(row['summary'])
+        pdf.spacer()
+    
+    pdf.generate()
+
+    with open('meeting_summary.pdf', 'wb') as fl:
+        fl.write(f.getbuffer())
+
 
 def update_start(start_t):
     st.session_state['start_point'] = int(start_t/1000)
@@ -21,13 +49,12 @@ if uploaded_file is not None:
         status = polling_response.json()['status']
 
         if status =='completed':
-
+            
             st.subheader('Main themes')
             with st.expander('Themes'):
                 categories = polling_response.json()['iab_categories_result']['summary']
                 for cat in categories:
-                    st.markdown("* "+ cat)
-
+                    st.markdown("* " + cat)
 
 
             st.subheader("Summary Notes of this Meeting:")
@@ -41,5 +68,8 @@ if uploaded_file is not None:
                 with st.expander(row['gist']):
                     st.write(row['summary'])
                     st.button(row['start_str'], on_click=update_start, args=(row['start'],))
-
-
+            
+            st.button("Generate PDF", on_click=export_pdf, args=(
+                polling_response.json()['iab_categories_result']['summary'],
+                polling_response.json()['chapters']
+            ))
